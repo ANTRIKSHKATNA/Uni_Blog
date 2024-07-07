@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 const userSchema = new mongoose.Schema(
   {
     username: {
@@ -27,7 +28,6 @@ const userSchema = new mongoose.Schema(
         default: [],
       },
     ],
-
     following: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -47,6 +47,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+
     link: {
       type: String,
       default: "",
@@ -55,14 +56,13 @@ const userSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Post",
-        default: []
-      }
+        default: [],
+      },
     ],
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 const User = mongoose.model("User", userSchema);
+
 export default User;
