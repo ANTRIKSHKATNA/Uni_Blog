@@ -2,9 +2,10 @@
   "name": "blog-by-me",
   "version": "1.0.0",
   "description": "",
+  "main": "backend",
   "scripts": {
     "dev": "set NODE_ENV=development && nodemon backend/server.js",
-    "start": "set NODE_ENV=production && node server.js",
+    "start": "set NODE_ENV=production && node backend/server.js",
     "build": "npm install && npm install --prefix frontend && npm run build --prefix frontend"
   },
   "keywords": [],
