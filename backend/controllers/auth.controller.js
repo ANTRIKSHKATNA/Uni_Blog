@@ -6,30 +6,43 @@ export const signup = async (req, res) => {
   try {
     const { fullName, username, email, password } = req.body;
 
+    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ error: "Invalid email format" });
     }
 
+    // Check if email ends with @nith.ac.in
+    if (!email.endsWith("@nith.ac.in")) {
+      return res
+        .status(400)
+        .json({ error: "Sign-up restricted to @nith.ac.in email addresses" });
+    }
+
+    // Check if username is already taken
     const existingUser = await User.findOne({ username });
     if (existingUser) {
       return res.status(400).json({ error: "Username is already taken" });
     }
 
+    // Check if email is already registered
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
       return res.status(400).json({ error: "Email is already taken" });
     }
 
+    // Validate password length
     if (password.length < 6) {
       return res
         .status(400)
         .json({ error: "Password must be at least 6 characters long" });
     }
 
+    // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Create new user instance
     const newUser = new User({
       fullName,
       username,
@@ -37,23 +50,23 @@ export const signup = async (req, res) => {
       password: hashedPassword,
     });
 
-    if (newUser) {
-      generateTokenAndSetCookie(newUser._id, res);
-      await newUser.save();
+    // Save the user to the database
+    await newUser.save();
 
-      res.status(201).json({
-        _id: newUser._id,
-        fullName: newUser.fullName,
-        username: newUser.username,
-        email: newUser.email,
-        followers: newUser.followers,
-        following: newUser.following,
-        profileImg: newUser.profileImg,
-        coverImg: newUser.coverImg,
-      });
-    } else {
-      res.status(400).json({ error: "Invalid user data" });
-    }
+    // Generate JWT token and set cookie
+    generateTokenAndSetCookie(newUser._id, res);
+
+    // Respond with user data
+    res.status(201).json({
+      _id: newUser._id,
+      fullName: newUser.fullName,
+      username: newUser.username,
+      email: newUser.email,
+      followers: newUser.followers,
+      following: newUser.following,
+      profileImg: newUser.profileImg,
+      coverImg: newUser.coverImg,
+    });
   } catch (error) {
     console.log("Error in signup controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
